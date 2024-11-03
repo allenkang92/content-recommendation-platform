@@ -160,7 +160,7 @@ flake8==7.0.0
 - 문서화: 각 주요 함수 및 클래스에 대한 문서 문자열(docstring) 작성
 
 ## 실행 화면
-![index화면](./개발%20관련/initial.png)
-![modal화면](./개발%20관련/modal.png)
-![추천예시화면](./개발%20관련/exam_file.svg)
-![모니터링화면](./개발%20관련/monitoring.png)
+![index화면](structure/개발%20관련/initial.png)
+![modal화면](structure/개발%20관련/modal.png)
+![추천예시화면](structure/개발%20관련/exam_file.svg)
+![모니터링화면](structure/개발%20관련/monitoring.png)
