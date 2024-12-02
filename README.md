@@ -16,6 +16,7 @@ FastAPI를 사용한 백엔드 API, 기본적 프론트엔드 인터페이스, E
 - 실시간 데이터 처리 (Kafka 활용)
 - 추천 결과 시각화 (데이터 분석용)
 - 로그 및 시스템 모니터링 (ELK 스택 활용)
+- LLM 기반 챗봇 서비스 (Ollama 활용)
 
 ## 기술 스택
 - 백엔드: FastAPI, PySpark
@@ -25,12 +26,13 @@ FastAPI를 사용한 백엔드 API, 기본적 프론트엔드 인터페이스, E
 - 데이터 처리: PySpark, Pandas
 - 분석 도구: Jupyter Lab
 - 모니터링: Elasticsearch, Logstash, Kibana (ELK 스택)
+- 컨테이너화: Docker, Docker Compose
 
 ## 프로젝트 구조
 ```
 .
-├── 개발 관련
-│   ├── 개발환경설치및실행.md
+├── docs
+│   ├── setup_and_run.md
 │   └── mermaid.md
 ├── backend
 │   ├── spark
@@ -54,113 +56,125 @@ FastAPI를 사용한 백엔드 API, 기본적 프론트엔드 인터페이스, E
 │   ├── top-20.js
 │   └── unify.css
 ├── parquet_data
+├── logstash
+│   └── pipeline
+│       └── logstash.conf
+├── docker-compose.yml
+├── Dockerfile.fastapi
 ├── .gitignore
 ├── netflix-recommendation-architecture.svg
 ├── README.md
 └── requirements.txt
 ```
 
-## 설치 및 설정 가이드
+## 설치 및 실행 가이드
 
-## 인스턴스 구성
+### 사전 요구사항
+- Docker 및 Docker Compose 설치
+- Git
 
-### 인스턴스 1: 데이터 처리 및 분석 서버
-- Kafka 클러스터: 실시간 데이터 스트리밍
-- Spark: 대규모 데이터 처리
-- Jupyter Lab: 데이터 분석가를 위한 대화형 분석 도구
+### 환경 변수 설정
+1. 프로젝트 루트에 `.env` 파일 생성:
+```bash
+# PostgreSQL
+POSTGRES_USER=user
+POSTGRES_PASSWORD=password
+POSTGRES_DB=netflix
 
-### 인스턴스 2: 애플리케이션 서버
-- 프론트엔드: 사용자 인터페이스
-- FastAPI 백엔드: RESTful API 제공
-- Kafka: 실시간 데이터 처리 및 이벤트 스트리밍
-- PostgreSQL: 데이터베이스
+# Kafka
+KAFKA_BOOTSTRAP_SERVERS=kafka:29092
 
-### 인스턴스 3: 모니터링 서버
-- Kafka: 로그 및 메트릭 수집
-- Logstash: 로그 처리 및 변환
-- Elasticsearch: 로그 및 메트릭 저장 및 검색
-- Kibana: 데이터 시각화 및 모니터링 대시보드
-- llama 3.1 : 챗봇
-
-## 의존성
-
-```
-# 웹 프레임워크
-fastapi==0.109.0
-uvicorn==0.27.0
-
-# 파이썬 라이브러리 & 프레임워크
-pyspark==3.5.0
-pandas==2.2.0
-numpy==1.26.3
-scikit-learn==1.4.0
-
-# 카프카
-kafka-python==2.0.2
-
-# ELK
-elasticsearch==7.17.9
-elasticsearch-dsl==7.4.1
-
-# DB
-sqlalchemy==2.0.25
-psycopg2-binary==2.9.9
-
-# API Client
-requests==2.31.0
-
-# Async Support for FastAPI
-aiohttp==3.9.1
-
-# Jupyter Notebook
-jupyter==1.0.0
-
-# 추가 패키지
-pyarrow==15.0.0
-python-dotenv==1.0.0
-pytest==7.4.4
-black==23.12.1
-flake8==7.0.0
+# Elasticsearch
+ELASTICSEARCH_URL=http://elasticsearch:9200
 ```
 
-## 설치 및 설정 가이드
+### Docker를 이용한 설치 및 실행
 
-### 인스턴스 1: 데이터 처리 및 분석 서버
+1. 프로젝트 클론
+```bash
+git clone [repository-url]
+cd content-recommendation-platform
+```
 
+2. Docker 컨테이너 실행
+```bash
+docker-compose up -d
+```
+
+3. 서비스 확인
+- FastAPI 서버: http://localhost:8000
+- Jupyter Lab: http://localhost:8888
+- Kibana 대시보드: http://localhost:5601
+- Spark UI: http://localhost:8080
+
+4. 서비스 중지
+```bash
+docker-compose down
+```
+
+### 수동 설치 및 실행 (Docker 없이)
+
+각 인스턴스별 설치 방법은 아래와 같습니다:
+
+#### 인스턴스 1: 데이터 처리 및 분석 서버
 1. Java 및 Python 설치
 2. Kafka 클러스터 설정
 3. Spark 설치 및 구성
 4. Jupyter Lab 설치 및 설정
 
-### 인스턴스 2: 애플리케이션 서버
-
+#### 인스턴스 2: 애플리케이션 서버
 1. Python 및 필요한 라이브러리 설치
 2. FastAPI 애플리케이션 설정
 3. 프론트엔드 파일 배포
 4. Kafka 클라이언트 설정
 
-### 인스턴스 3: 모니터링 서버
-
+#### 인스턴스 3: 모니터링 서버
 1. Java 설치(JVM)
-2. ELK 스택 (Elasticsearch, Logstash, Kibana) 설치 및 구성
-3. Logstash 파이프라인 설정 (Kafka에서 데이터 수집)
+2. ELK 스택 설치 및 구성
+3. Logstash 파이프라인 설정
+4. Ollama 설치 및 설정
 
-각 인스턴스의 상세한 설정 방법은 해당 디렉토리의 README 파일을 참조하세요.
+## 트러블슈팅
 
-## 실행 방법
+### 일반적인 문제 해결
 
-1. 각 인스턴스의 서비스 시작 (Kafka, Spark, ELK 스택 등)
-2. FastAPI 애플리케이션 실행
-3. 브라우저에서 프론트엔드 접속
+1. Docker 컨테이너가 시작되지 않는 경우
+```bash
+# 로그 확인
+docker-compose logs [service-name]
+
+# 컨테이너 재시작
+docker-compose restart [service-name]
+```
+
+2. Kafka 연결 문제
+- `kafka:29092`가 아닌 `localhost:9092`로 접속 시도
+- Zookeeper 상태 확인
+
+3. Elasticsearch 메모리 부족
+- Docker 설정에서 메모리 제한 확인
+- ES_JAVA_OPTS 환경변수 조정
+
+4. Spark 작업 실패
+- Spark UI에서 로그 확인
+- 메모리 설정 확인
+
+### 데이터 초기화
+필요한 경우 다음 명령으로 데이터 초기화:
+```bash
+docker-compose down -v  # 볼륨 삭제
+docker-compose up -d    # 재시작
+```
 
 ## 개발자 가이드
 
 - 코드 스타일: Black 및 Flake8을 사용하여 일관된 코드 스타일 유지
 - 테스트: Pytest를 사용한 단위 테스트 및 통합 테스트 구현
 - 문서화: 각 주요 함수 및 클래스에 대한 문서 문자열(docstring) 작성
+- 브랜치 전략: Git Flow 사용
 
 ## 실행 화면
-![index화면](structure/개발%20관련/initial.png)
-![modal화면](structure/개발%20관련/modal.png)
-![추천예시화면](structure/개발%20관련/exam_file.svg)
-![모니터링화면](structure/개발%20관련/monitoring.png)
+![index화면](docs/initial.png)
+![modal화면](docs/modal.png)
+![추천예시화면](docs/exam_file.svg)
+![모니터링화면](docs/monitoring.png)
